@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/simonhayward/price-update/priceupdate"
 )
 
 func main() {
 	if err := priceupdate.Run(); err != nil {
-		fmt.Printf("error: %s\n", err)
+		log.Fatalf("error: %s\n", err)
 	}
 }
