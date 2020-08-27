@@ -3,7 +3,6 @@ package priceupdate
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 )
@@ -47,7 +46,7 @@ func MustPopulateSecuritiesAndRows(sourcesUrl, storeUrl string) (*Securities, Ro
 	select {
 	case <-doneCh:
 	case err := <-errCh:
-		log.Fatalf("setup failed: %s", err)
+		panic(fmt.Sprintf("setup failed: %s", err))
 	}
 
 	return securities, rows

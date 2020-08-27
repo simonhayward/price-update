@@ -11,7 +11,7 @@ import (
 func RunUpdate(w http.ResponseWriter, r *http.Request) {
 	err := Run()
 	if err != nil {
-		fmt.Printf("error: %s\n", err)
+		panic(fmt.Sprintf("error: %s\n", err))
 	}
 	fmt.Fprintf(w, "Done")
 }
