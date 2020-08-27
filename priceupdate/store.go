@@ -72,7 +72,7 @@ func (rs Rows) Save(url, token string, b []byte) error {
 
 	var v interface{}
 	if err := json.Unmarshal(jsonData, &v); err != nil {
-		fmt.Printf("invalid: %s\n", err)
+		fmt.Println(fmt.Sprintf(`{"message": "invalid: %s", "severity": "error"}`, err))
 	}
 
 	_, err := PatchResponse(url, token, jsonData)

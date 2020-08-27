@@ -87,9 +87,9 @@ func GetISINSourcesPrice(security *Security, rows Rows, wg *sync.WaitGroup, mute
 		}
 		mutex.Unlock()
 	case <-tasksCh:
-		fmt.Printf("no price: %s\n", security.ISIN)
+		fmt.Println(fmt.Sprintf(`{"message": "no price: %s", "severity": "error"}`, security.ISIN))
 	case <-time.After(SourcesTimeout):
-		fmt.Printf("timed out: %s\n", security.ISIN)
+		fmt.Println(fmt.Sprintf(`{"message": "timed out for: %s after: %d seconds", "severity": "info"}`, security.ISIN, SourcesTimeout))
 	}
 
 	cancel() // cancel any running tasks
@@ -101,10 +101,10 @@ func getISINPrice(ctx context.Context, s *Source, newPriceCh chan string, wgPric
 	doneCh := make(chan struct{})
 	go func() {
 		if err := s.SetPrice(); err == nil {
-			fmt.Printf("found: %s at: %s\n", s.Price, s.URL)
+			fmt.Println(fmt.Sprintf(`{"message": "price found: %s at: %s", "severity": "info"}`, s.Price, s.URL))
 			newPriceCh <- s.Price
 		} else {
-			fmt.Printf("error: %s\n", err)
+			fmt.Println(fmt.Sprintf(`{"message": "price error: %s", "severity": "error"}`, err))
 		}
 
 		close(doneCh)
@@ -112,7 +112,7 @@ func getISINPrice(ctx context.Context, s *Source, newPriceCh chan string, wgPric
 
 	select {
 	case <-ctx.Done():
-		fmt.Printf("cancelling: %s\n", s.URL)
+		fmt.Println(fmt.Sprintf(`{"message": "cancelling: %s", "severity": "info"}`, s.URL))
 		return
 	case <-doneCh:
 		return
