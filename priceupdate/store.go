@@ -69,7 +69,7 @@ func (rs Rows) AsBytes() ([]byte, error) {
 }
 
 func (rs Rows) Save(url, token string, b []byte) error {
-	// TODO: Saves to a specific file in gist.
+	// TODO:
 	// The input is the raw json URL for the specific file `quotes.csv` in the gist.
 	// Could be handled better, perhaps by unifying the input/output in a struct for
 	// the `gist` structure and so sharing the same URL.
@@ -77,7 +77,7 @@ func (rs Rows) Save(url, token string, b []byte) error {
 
 	var v interface{}
 	if err := json.Unmarshal(jsonData, &v); err != nil {
-		fmt.Println(fmt.Sprintf(`{"message": "invalid: %s", "severity": "error"}`, err))
+		return fmt.Errorf("invalid json: %s", err)
 	}
 
 	_, err := PatchResponse(url, token, jsonData)
