@@ -40,6 +40,7 @@ func GenerateRows(body []byte) (Rows, error) {
 	return rows, nil
 }
 
+// IndexOrder - maintain the row order for CSV output
 func (rs Rows) IndexOrder() []string {
 	keys := make([]string, len(rs))
 	for key, row := range rs {
@@ -48,6 +49,7 @@ func (rs Rows) IndexOrder() []string {
 	return keys
 }
 
+// AsBytes - in CSV format
 func (rs Rows) AsBytes() ([]byte, error) {
 	b := &bytes.Buffer{}
 	w := csv.NewWriter(b)
@@ -67,7 +69,10 @@ func (rs Rows) AsBytes() ([]byte, error) {
 }
 
 func (rs Rows) Save(url, token string, b []byte) error {
-	// Saves back out to sepcific file in gist
+	// TODO: Saves to a specific file in gist.
+	// The input is the raw json URL for the specific file `quotes.csv` in the gist.
+	// Could be handled better, perhaps by unifying the input/output in a struct for
+	// the `gist` structure and so sharing the same URL.
 	jsonData := []byte(fmt.Sprintf(`{"files":{"quotes.csv":{"content": %s}}}`, strconv.Quote(fmt.Sprintf("%s", b))))
 
 	var v interface{}

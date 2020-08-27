@@ -8,6 +8,7 @@ import (
 	"sync"
 )
 
+// RunUpdate is GCP entry point for http trigger
 func RunUpdate(w http.ResponseWriter, r *http.Request) {
 	err := Run()
 	if err != nil {

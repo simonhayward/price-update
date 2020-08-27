@@ -77,9 +77,16 @@ func (s *Source) Parse() (string, error) {
 	}
 
 	matches := r.FindStringSubmatch(string(s.Response))
-	if len(matches) > 0 {
-		return matches[1], nil
+	matchesLen := len(matches)
+
+	if matches == nil || matchesLen == 1 {
+		return "", fmt.Errorf("no match for regex: %s\n", s.Pattern)
 	}
 
-	return "", fmt.Errorf("match not found for regex: %s\n", s.Pattern)
+	if len(matches) > 2 {
+		fmt.Println(fmt.Sprintf(`{"message": "more than: %d matches found: %s", "severity": "warning"}`, len(matches), s.URL))
+	}
+
+	return matches[1], nil
+
 }
