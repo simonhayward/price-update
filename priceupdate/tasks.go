@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const SourcesTimeout = 5 * time.Second
+const SourcesTimeout = 15 * time.Second
 
 func MustPopulateSecuritiesAndRows(sourcesUrl, storeUrl string) (*Securities, Rows) {
 	errCh := make(chan error)

@@ -21,7 +21,7 @@ deploy: ## deploy out as GCP function
 	gcloud functions deploy priceupdate \
 	--set-env-vars SOURCES=${SOURCES},STORE=${STORE},STORE_TOKEN=${STORE_TOKEN},STORE_UPDATE=${STORE_UPDATE} \
 	--entry-point RunUpdate --runtime go113 --trigger-http --memory=128MB --region=europe-west2 \
-	--source=./priceupdate --timeout=10s
+	--source=./priceupdate --timeout=20s
 
 .PHONY: help
 help:  ## help command
