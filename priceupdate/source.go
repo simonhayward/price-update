@@ -80,7 +80,7 @@ func (s *Source) Parse() (string, error) {
 	matchesLen := len(matches)
 
 	if matches == nil || matchesLen == 1 {
-		return "", fmt.Errorf("no match for regex: %s\n", s.Pattern)
+		return "", fmt.Errorf("no match for regex: %s", s.Pattern)
 	}
 
 	if len(matches) > 2 {
