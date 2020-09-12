@@ -84,7 +84,7 @@ func (s *Source) Parse() (string, error) {
 	}
 
 	if len(matches) > 2 {
-		fmt.Println(fmt.Sprintf(`{"message": "more than: %d matches found: %s", "severity": "warning"}`, len(matches), s.URL))
+		LogOutput(Log{Message: fmt.Sprintf("more than: %d matches found: %s", len(matches), s.URL), Severity: Warning})
 	}
 
 	return matches[1], nil
