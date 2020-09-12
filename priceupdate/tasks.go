@@ -55,7 +55,7 @@ func MustPopulateSecuritiesAndRows(sourcesUrl, storeUrl string) (*Securities, Ro
 func GetISINSourcesPrice(security *Security, rows Rows, wg *sync.WaitGroup, mutex *sync.Mutex) {
 	defer wg.Done()
 
-	newPriceCh := make(chan string)
+	newPriceCh := make(chan *Source)
 	tasksCh := make(chan struct{})
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -63,14 +63,15 @@ func GetISINSourcesPrice(security *Security, rows Rows, wg *sync.WaitGroup, mute
 		_wg := sync.WaitGroup{}
 		_wg.Add(len(security.Sources))
 		for i := 0; i < len(security.Sources); i++ {
-			go getISINPrice(ctx, cancel, &security.Sources[i], newPriceCh, &_wg)
+			go getISINPrice(ctx, &security.Sources[i], newPriceCh, &_wg)
 		}
 		_wg.Wait()
 		close(tasksCh)
 	}()
 
 	select {
-	case price := <-newPriceCh:
+	case source := <-newPriceCh:
+		LogOutput(Log{Message: fmt.Sprintf("price found: %s at: %s", source.Price, source.URL), Severity: Info})
 		// Lock access to map
 		mutex.Lock()
 		var index int
@@ -82,29 +83,27 @@ func GetISINSourcesPrice(security *Security, rows Rows, wg *sync.WaitGroup, mute
 		}
 		rows[security.ISIN] = &Row{
 			Index:   index,
-			Price:   price,
+			Price:   source.Price,
 			Updated: fmt.Sprintf("%s", time.Now().UTC()),
 		}
 		mutex.Unlock()
 	case <-tasksCh:
-		fmt.Println(fmt.Sprintf(`{"message": "no price: %s", "severity": "error"}`, security.ISIN))
+		LogOutput(Log{Message: fmt.Sprintf("no price: %s", security.ISIN), Severity: Error})
 	case <-time.After(SourcesTimeout):
-		fmt.Println(fmt.Sprintf(`{"message": "timed out for: %s after: %d seconds", "severity": "info"}`, security.ISIN, SourcesTimeout))
-		cancel() // cancel running tasks
+		LogOutput(Log{Message: fmt.Sprintf("timed out for: %s after: %d seconds", security.ISIN, SourcesTimeout), Severity: Error})
 	}
+	cancel() // cancel running tasks
 }
 
-func getISINPrice(ctx context.Context, cancel context.CancelFunc, s *Source, newPriceCh chan string, wgPrices *sync.WaitGroup) {
+func getISINPrice(ctx context.Context, s *Source, newPriceCh chan *Source, wgPrices *sync.WaitGroup) {
 	defer wgPrices.Done()
 
 	doneCh := make(chan struct{})
 	go func() {
 		if err := s.SetPrice(); err == nil {
-			fmt.Println(fmt.Sprintf(`{"message": "price found: %s at: %s", "severity": "info"}`, s.Price, s.URL))
-			newPriceCh <- s.Price
-			cancel() // cancel other tasks
+			newPriceCh <- s
 		} else {
-			fmt.Println(fmt.Sprintf(`{"message": "price error: %s", "severity": "error"}`, err))
+			LogOutput(Log{Message: fmt.Sprintf("price error: %s", err), Severity: Error})
 		}
 
 		close(doneCh)
@@ -112,7 +111,7 @@ func getISINPrice(ctx context.Context, cancel context.CancelFunc, s *Source, new
 
 	select {
 	case <-ctx.Done():
-		fmt.Println(fmt.Sprintf(`{"message": "cancelling: %s", "severity": "info"}`, s.URL))
+		LogOutput(Log{Message: fmt.Sprintf("cancelling: %s", s.URL), Severity: Info})
 		return
 	case <-doneCh:
 		return

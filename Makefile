@@ -1,6 +1,6 @@
 .PHONY: test
 test: ## run local tests
-	go test -race ./... -v
+	go test -race ./...
 
 .PHONY: build
 build: ## build binary
