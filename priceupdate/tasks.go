@@ -90,7 +90,7 @@ func GetISINSourcesPrice(security *Security, rows Rows, wg *sync.WaitGroup, mute
 	case <-tasksCh:
 		LogOutput(Log{Message: fmt.Sprintf("no price: %s", security.ISIN), Severity: Error})
 	case <-time.After(SourcesTimeout):
-		LogOutput(Log{Message: fmt.Sprintf("timed out for: %s after: %d seconds", security.ISIN, SourcesTimeout), Severity: Error})
+		LogOutput(Log{Message: fmt.Sprintf("timed out for: %s after: %d seconds", security.ISIN, SourcesTimeout), Severity: Warning})
 	}
 	cancel() // cancel running tasks
 }
@@ -103,7 +103,7 @@ func getISINPrice(ctx context.Context, s *Source, newPriceCh chan *Source, wgPri
 		if err := s.SetPrice(); err == nil {
 			newPriceCh <- s
 		} else {
-			LogOutput(Log{Message: fmt.Sprintf("price error: %s", err), Severity: Error})
+			LogOutput(Log{Message: fmt.Sprintf("price error: %s %s", s.URL, err), Severity: Error})
 		}
 
 		close(doneCh)
