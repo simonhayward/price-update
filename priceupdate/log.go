@@ -33,5 +33,5 @@ func LogOutput(l Log) {
 	if err != nil {
 		panic(fmt.Sprintf("marshal failed: %s", err))
 	}
-	fmt.Println(log)
+	fmt.Println(string(log))
 }
