@@ -72,10 +72,12 @@ func (s *Source) SetPrice() error {
 	return nil
 }
 
+// CleanPrice - remove formatting chrs
 func (s *Source) CleanPrice() {
 	s.Price = strings.Replace(s.Price, ",", "", -1)
 }
 
+// ConvertPrice - if set on a price source shift decimal point (pounds to pence)
 func (s *Source) ConvertPrice() {
 	if s.Convert {
 		price := fmt.Sprintf("%s00", s.Price)
@@ -90,6 +92,7 @@ func (s *Source) ConvertPrice() {
 	}
 }
 
+// Parse - extract match from response
 func (s *Source) Parse() (string, error) {
 	r, err := regexp.Compile(s.Pattern)
 	if err != nil {
