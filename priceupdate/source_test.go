@@ -22,7 +22,8 @@ func TestSecurities(t *testing.T) {
 						},
 						{
 							"url": "https://2.com/01",
-							"p": "buy/sell price</div><p>([.0-9]+)p</p>"
+							"p": "buy/sell price</div><p>([.0-9]+)p</p>",
+							"c": true
 						}
 					]
 				},
@@ -51,6 +52,7 @@ func TestSecurities(t *testing.T) {
 						Source{
 							URL:     "https://2.com/01",
 							Pattern: "buy/sell price</div><p>([.0-9]+)p</p>",
+							Convert: true,
 						},
 					},
 				},
@@ -72,20 +74,20 @@ func TestSecurities(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("checking %s", tc.expected), func(t *testing.T) {
+		t.Run(fmt.Sprintf("checking %v", tc.expected), func(t *testing.T) {
 			result, err := GenerateSecurities(tc.body)
 			if err != nil {
 				t.Fatalf("unexpected nil %s", err)
 			}
 			if reflect.DeepEqual(*result, tc.expected) == false {
-				t.Errorf("got %s; want %s", result, tc.expected)
+				t.Errorf("got %v; want %v", result, tc.expected)
 			}
 		})
 	}
 
 }
 
-func TestSource(t *testing.T) {
+func TestSourceParse(t *testing.T) {
 	testCases := []struct {
 		source   Source
 		expected string
@@ -98,6 +100,13 @@ func TestSource(t *testing.T) {
 			},
 			expected: "10.1",
 		},
+		{
+			source: Source{
+				Response: []byte("<page><price>7.30</price></page>"),
+				Pattern:  "<page><price>([.0-9]+)</price></page>",
+			},
+			expected: "7.30",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -107,6 +116,83 @@ func TestSource(t *testing.T) {
 				t.Fatalf("%s", err)
 			}
 			if price != tc.expected {
+				t.Errorf("got %s; want %s", tc.source.Price, tc.expected)
+			}
+		})
+	}
+
+}
+
+func TestSourceCleanPrice(t *testing.T) {
+	testCases := []struct {
+		source   Source
+		expected string
+		err      error
+	}{
+		{
+			source: Source{
+				Price: "1,000.1",
+			},
+			expected: "1000.1",
+		},
+		{
+			source: Source{
+				Price: "7000,30",
+			},
+			expected: "700030",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("checking %s", tc.expected), func(t *testing.T) {
+			tc.source.CleanPrice()
+			if tc.source.Price != tc.expected {
+				t.Errorf("got %s; want %s", tc.source.Price, tc.expected)
+			}
+		})
+	}
+
+}
+
+func TestSourceConvertPrice(t *testing.T) {
+	testCases := []struct {
+		source   Source
+		expected string
+		err      error
+	}{
+		{
+			source: Source{
+				Price:   "10.1",
+				Convert: true,
+			},
+			expected: "1010.0",
+		},
+		{
+			source: Source{
+				Price: "7.30",
+			},
+			expected: "7.30",
+		},
+		{
+			source: Source{
+				Price:   ".12",
+				Convert: true,
+			},
+			expected: "12.00",
+		},
+		{
+			source: Source{
+				Price:   "7.2",
+				Convert: true,
+			},
+			expected: "720.0",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("checking %s", tc.expected), func(t *testing.T) {
+			tc.source.ConvertPrice()
+			if tc.source.Price != tc.expected {
 				t.Errorf("got %s; want %s", tc.source.Price, tc.expected)
 			}
 		})

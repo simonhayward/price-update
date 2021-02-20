@@ -2,6 +2,10 @@
 test: ## run local tests
 	go test -race ./...
 
+.PHONY: trace
+trace: ## run trace tool
+	go test -trace trace.out ./...priceupdate
+
 .PHONY: build
 build: ## build binary
 	go build

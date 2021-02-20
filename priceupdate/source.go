@@ -10,6 +10,7 @@ import (
 type Source struct {
 	URL      string `json:"url"`
 	Pattern  string `json:"p"`
+	Convert  bool   `json:"c,omitempty"`
 	Response []byte
 	Price    string
 }
@@ -54,6 +55,7 @@ func (s *Source) SetReponse() error {
 	return nil
 }
 
+// SetPrice - get response from URL then clean, convert price
 func (s *Source) SetPrice() error {
 	if err := s.SetReponse(); err != nil {
 		return err
@@ -64,10 +66,28 @@ func (s *Source) SetPrice() error {
 		return fmt.Errorf("parse failed for: %s error: %s", s.URL, err)
 	}
 
-	// Cleanup price
-	s.Price = strings.Replace(price, ",", "", -1)
-
+	s.Price = price
+	s.CleanPrice()
+	s.ConvertPrice()
 	return nil
+}
+
+func (s *Source) CleanPrice() {
+	s.Price = strings.Replace(s.Price, ",", "", -1)
+}
+
+func (s *Source) ConvertPrice() {
+	if s.Convert {
+		price := fmt.Sprintf("%s00", s.Price)
+		index := strings.Index(price, ".")
+		if index != -1 {
+			// remove point
+			price = fmt.Sprintf("%s%s", price[:index], price[index+1:])
+			// shift point
+			price = fmt.Sprintf("%s.%s", price[:index+2], price[index+2:])
+		}
+		s.Price = price
+	}
 }
 
 func (s *Source) Parse() (string, error) {
