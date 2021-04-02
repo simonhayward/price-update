@@ -69,11 +69,7 @@ func (rs Rows) AsBytes() ([]byte, error) {
 }
 
 func (rs Rows) Save(url, token string, b []byte) error {
-	// TODO:
-	// The input is the raw json URL for the specific file `quotes.csv` in the gist.
-	// Could be handled better, perhaps by unifying the input/output in a struct for
-	// the `gist` structure and so sharing the same URL.
-	jsonData := []byte(fmt.Sprintf(`{"files":{"quotes.csv":{"content": %s}}}`, strconv.Quote(fmt.Sprintf("%s", b))))
+	jsonData := []byte(fmt.Sprintf(`{"files":{"output.csv":{"content": %s}}}`, strconv.Quote(fmt.Sprintf("%s", b))))
 
 	var v interface{}
 	if err := json.Unmarshal(jsonData, &v); err != nil {

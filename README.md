@@ -3,24 +3,24 @@
 For a set of securities identitifed by their ISIN update their current prices.
 
 
-- From external files populate securites and store objects.
+- From external files populate securites (json) and output (csv).
 - For each ISIN create a task for each its sources to retrieve the price. When a task has succesfully found a price cancel its other tasks.
 - Add/Update the store ISINs with the new prices.
-- Save the store back to its external location.
+- Save the output back to its external location.
 
 
 ## Required
 
 #### Environment variables
 
-- `SOURCES` - URL to populate `Securities`
-- `STORE` - URL to populate `Store`
-- `STORE_UPDATE` - URL to patch changes
-- `STORE_TOKEN` - authorization token for patch request
+- `INPUT` - URL to populate `Securities`
+- `OUTPUT` - URL to populate `Store`
+- `API` - URL to patch changes
+- `TOKEN` - authorization token for patch request
 
 ## External files
 
-#### Sources format (JSON)
+#### input.json
 
 
 ```
@@ -54,7 +54,7 @@ For a set of securities identitifed by their ISIN update their current prices.
 
 ```
 
-#### Store format (CSV)
+#### output.csv
 
 ```
 price,isin,updated
@@ -80,8 +80,8 @@ go build && ./price-update
 
 ```
 docker build -t price-update .
-docker run --env SOURCES=$SOURCES --env STORE=$STORE \
-        --env STORE_UPDATE=$STORE_UPDATE --env STORE_TOKEN=$STORE_TOKEN \
+docker run --env INPUT=$INPUT --env OUTPUT=$OUTPUT \
+        --env API=$API --env TOKEN=$TOKEN \
         --rm price-update
 ```
 

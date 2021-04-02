@@ -16,14 +16,14 @@ docker-build: ## docker build
 
 .PHONY: docker-run
 docker-run: docker-build ## docker run in container
-	docker run --env SOURCES=${SOURCES} --env STORE=${STORE} \
-	--env STORE_TOKEN=${STORE_TOKEN} --env STORE_UPDATE=${STORE_UPDATE} \
+	docker run --env INPUT=${INPUT} --env OUTPUT=${OUTPUT} \
+	--env TOKEN=${TOKEN} --env API=${API} \
 	--rm price-update
 
 .PHONY: deploy
 deploy: ## deploy out as GCP function
 	gcloud functions deploy priceupdate \
-	--set-env-vars SOURCES=${SOURCES},STORE=${STORE},STORE_TOKEN=${STORE_TOKEN},STORE_UPDATE=${STORE_UPDATE} \
+	--set-env-vars INPUT=${INPUT},OUTPUT=${OUTPUT},TOKEN=${TOKEN},API=${API} \
 	--entry-point RunUpdate --runtime go113 --trigger-http --memory=128MB --region=europe-west2 \
 	--source=./priceupdate --timeout=20s
 

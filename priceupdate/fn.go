@@ -24,7 +24,7 @@ func Run() error {
 	}
 
 	// Populate from external resources
-	securities, rows := MustPopulateSecuritiesAndRows(env["SOURCES"], env["STORE"])
+	securities, rows := MustPopulateSecuritiesAndRows(env["INPUT"], env["OUTPUT"])
 
 	// existing output
 	_output, err := rows.AsBytes()
@@ -53,7 +53,7 @@ func Run() error {
 	}
 
 	// Save output back to external store
-	if err := rows.Save(env["STORE_UPDATE"], env["STORE_TOKEN"], output); err != nil {
+	if err := rows.Save(env["API"], env["TOKEN"], output); err != nil {
 		return fmt.Errorf("failed to save: %s", err)
 	}
 
@@ -62,7 +62,7 @@ func Run() error {
 
 func getEnv() (map[string]string, error) {
 	env := make(map[string]string)
-	for _, e := range []string{"SOURCES", "STORE", "STORE_UPDATE", "STORE_TOKEN"} {
+	for _, e := range []string{"INPUT", "OUTPUT", "API", "TOKEN"} {
 		var v string
 		v, ok := os.LookupEnv(e)
 		if ok == false {
