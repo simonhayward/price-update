@@ -103,7 +103,7 @@ func (s *Source) Parse() (string, error) {
 	matchesLen := len(matches)
 
 	if matches == nil || matchesLen == 1 {
-		return "", fmt.Errorf("no match for regex: %s", s.Pattern)
+		return "", fmt.Errorf("no match for regex: %s in response: %s", s.Pattern, string(s.Response))
 	}
 
 	if len(matches) > 2 {
