@@ -107,6 +107,13 @@ func TestSourceParse(t *testing.T) {
 			},
 			expected: "7.30",
 		},
+		{
+			source: Source{
+				Response: []byte("<td class='line text'>GBX 313.23</td>"),
+				Pattern:  "GBX\xC2\xA0([.0-9]+)",
+			},
+			expected: "313.23",
+		},
 	}
 
 	for _, tc := range testCases {
